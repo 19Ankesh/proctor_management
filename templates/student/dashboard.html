@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Welcome, {{ student.user.get_full_name|default:student.user.username }}!</h4>
+                    <p class="card-text">
+                        {% if proctor %}
+                            Your Proctor: {{ proctor.user.get_full_name|default:proctor.user.username }}
+                        {% else %}
+                            No proctor assigned yet
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'student_chat' %}" class="btn btn-primary">
+                            <i class="fas fa-comments"></i> Chat with Proctor
+                        </a>
+                      
+                        <a href="{% url 'student_marks' %}" class="btn btn-success">
+                            <i class="fas fa-chart-bar"></i> View Marks
+                        </a>
+                        <a href="{% url 'student_attendance' %}" class="btn btn-warning">
+                            <i class="fas fa-clipboard-check"></i> View Attendance
+                        </a>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Attendance</h5>
+                    <h2 class="mb-0">{{ attendance_percentage }}%</h2>
+                    <p class="mb-0">Present: {{ present_count }} / Total: {{ present_count|add:absent_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Upcoming Meetings</h5>
+                    <!-- <h2 class="mb-0">{{ upcoming_meetings_count }}</h2> -->
+                    <p class="mb-0">Next meeting: 
+                        {% if next_meeting %}
+                            {{ next_meeting.get_day_display }} at {{ next_meeting.get_time_display }}
+                        {% else %}
+                            No upcoming meetings
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Marks Overview</h5>
+                    <h2 class="mb-0">{{ marks_by_semester|length }}</h2>
+                    <p class="mb-0">Semesters with marks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regular Time Slots -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Regular Time Slots</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for slot in time_slots %}
+                                <tr>
+                                    <td>{{ slot.get_day_display }}</td>
+                                    <td>{{ slot.get_time_display }}</td>
+                                    <td>
+                                        {% if slot.day == current_day %}
+                                            {% if slot.time > current_hour %}
+                                                <span class="badge bg-success">Upcoming</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Completed</span>
+                                            {% endif %}
+                                        {% elif slot.day < current_day %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Upcoming</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No regular time slots assigned</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Attendance -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Attendance</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Subject</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attendance in recent_attendance %}
+                                <tr>
+                                    <td>{{ attendance.date }}</td>
+                                    <td>
+                                        {% if attendance.is_present %}
+                                            <span class="badge bg-success">Present</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Absent</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ attendance.subject }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No attendance records</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marks by Semester -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Marks by Semester</h5>
+                    {% for semester, marks in marks_by_semester.items %}
+                    <div class="mb-4">
+                        <h6>Semester {{ semester }}</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Marks</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mark in marks %}
+                                    <tr>
+                                        <td>{{ mark.subject }}</td>
+                                        <td>{{ mark.marks }}</td>
+                                        <td>{{ mark.date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center">No marks recorded yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
