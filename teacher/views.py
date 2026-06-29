@@ -24,20 +24,25 @@ def teacher_dashboard(request):
     
     try:
         teacher = request.user.teacher
-        # Get the proctor instance for this teacher
-        try:
-            proctor = teacher.user.proctor
-        except:
-            from proctor.models import Proctor
-            proctor = Proctor.objects.create(
-                user=teacher.user,
-                department=teacher.department,
-                designation=teacher.designation,
-                phone_number="Not Assigned",
-                office_location="Not Assigned"
-            )
     except Teacher.DoesNotExist:
-        return redirect('dashboard')
+        teacher = Teacher.objects.create(
+            user=request.user,
+            department="Not Assigned",
+            designation="Not Assigned"
+        )
+    
+    # Get the proctor instance for this teacher
+    try:
+        proctor = teacher.user.proctor
+    except:
+        from proctor.models import Proctor
+        proctor = Proctor.objects.create(
+            user=teacher.user,
+            department=teacher.department,
+            designation=teacher.designation,
+            phone_number="Not Assigned",
+            office_location="Not Assigned"
+        )
     
     # Get today's date and time
     now = timezone.now()

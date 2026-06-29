@@ -26,7 +26,12 @@ def student_dashboard(request):
     try:
         student = request.user.student
     except Student.DoesNotExist:
-        return redirect('dashboard')
+        student = Student.objects.create(
+            user=request.user,
+            roll_number=f"STU{request.user.id:03d}",
+            semester=1,
+            department="Not Assigned"
+        )
     
     # Get proctor details
     proctor = student.assigned_proctor
