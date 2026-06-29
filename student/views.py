@@ -285,17 +285,19 @@ def report_issue(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         priority = request.POST.get('priority')
+        attachment = request.FILES.get('attachment')
 
         Issue.objects.create(
             student=student,
             title=title,
             description=description,
-            priority=priority
+            priority=priority,
+            attachment=attachment
         )
         messages.success(request, 'Issue reported successfully.')
-        return redirect('student_dashboard')
+        return redirect('student_issues')
     
-    return redirect('student_dashboard')
+    return redirect('student_issues')
 
 @login_required
 def student_issues(request):

@@ -13,6 +13,7 @@ urlpatterns = [
     path('meetings/summaries/view/<int:meeting_id>/', views.view_meeting_summary, name='view_meeting_summary'),
     path('timetable/', views.student_timetable, name='student_timetable'),
     path('issues/', views.student_issues, name='student_issues'),
+    path('issues/report/', views.report_issue, name='report_issue'),
     path('issues/<int:issue_id>/', views.issue_detail, name='issue_detail'),
     path('chat/', views.student_chat, name='student_chat'),
 ] 
