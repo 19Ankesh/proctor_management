@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-j8gbnmua)j2!%em8zf0!lnts5h#fyxy6l)@etdjg4^bxfimq8w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -149,8 +150,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'spancersam518@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'zdaj mdbq wrdc emjs'  # Replace with your app password
+import os
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'spancersam518@gmail.com')  # Loaded from env var
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'zdaj mdbq wrdc emjs')  # Loaded from env var
 
 # Email Templates
 EMAIL_TEMPLATES = {
@@ -185,3 +187,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
+
+# Crispy Forms Config
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
