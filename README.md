@@ -119,10 +119,5 @@ Ensure the following variables are configured in your hosting dashboard:
 Since this project uses **WebSockets**, you must deploy using an ASGI server. The deployment command is pre-configured in the `Procfile`:
 ```bash
 daphne -b 0.0.0.0 -p $PORT proctor_management.asgi:application
-```
+``
 
----
-
-## 🔒 Security & Best Practices
-* **Environment variables:** Sensitive credentials (like SMTP mail details) are separated from code and loaded through environment configuration.
-* **Ignored Virtual Environment:** The `.gitignore` is optimized to prevent committing system-specific binaries (`venv/`), keeping clean Git histories.
